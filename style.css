@@ -1,0 +1,52 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* avoid scrollbars if you want a fullscreen effect */
+  height: 100vh;
+  background: linear-gradient(to bottom, #330030, #520172);
+}
+
+/* Ensure the parallax container is ABOVE the guide */
+.parallax-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 3; /* Ensure it's above the guide */
+}
+
+/* Each SVG track is absolutely positioned */
+.parallax-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4; /* Ensure lamps appear above the guide */
+}
+
+
+
+/* Guide layer (should be behind lamps but above background) */
+.guideContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  pointer-events: none; /* Prevents interaction from interfering with lamps */
+  z-index: 2; /* Higher than background, lower than lamps */
+}
+
+.guide {
+  width: 100%;
+  height: 100%;
+}
+
+
+#shapeATrack1 {
+  
+  border: dashed red;
+
+}

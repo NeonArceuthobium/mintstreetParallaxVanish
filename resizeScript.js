@@ -214,7 +214,7 @@ function resizeSVG() {
     gsap.to({ param: -300 }, {
       param: 2500,
       duration: durationSec,
-      ease: CustomEase.create("myEase", "M0,0 C1, -0.06 1,0.4 1,1"),
+      ease: "expo.in",
   
   // "myEase", .52,-0.48,1,.02 1,-0.06,1,.31
       onUpdate: function () {
@@ -261,7 +261,7 @@ function resizeSVG() {
    ************************************************************/
   const track1Svg = document.getElementById("track1Svg");
   setInterval(() => {
-    spawnSmokeStack(track1Svg, 8);
+    spawnSmokeStack(track1Svg, 6);
   }, 1000);
   
   

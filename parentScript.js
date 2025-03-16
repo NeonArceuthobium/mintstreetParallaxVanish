@@ -15,11 +15,12 @@ const trackConfigs = [
     svgId: "track1Svg",
     topRailId: "redLine1",
     bottomRailId: "redLine2",
-    assetTemplates: ["shapeATrack1"],
+    assetTemplates: ["shapeATrack1", "shapeBTrack1", "shapeCTrack1", "shapeDTrack1"],
     speed: 6,
     spawnRate: 1000,
     zIndex: 1
-  }
+  },
+
 ];
 
 

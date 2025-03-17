@@ -583,11 +583,6 @@ function generateSidewalkOnTrack2() {
 
 
 
-
-
-
-
-
 // Global array to track active skyline buildings
 const skylineAssets = [];
 
@@ -602,7 +597,14 @@ const skylineAssets = [];
  * @param {number} buildingWidth - The base horizontal width (in pixels) of the building.
  * @param {number} spawnOffset - How far off-screen (in pixels) the building spawns from the left.
  */
-function spawnDynamicSkylineBuilding(svgRoot, durationSec, topRailOptions, bottomRailId, buildingWidth, spawnOffset) {
+function spawnDynamicSkylineBuilding(
+  svgRoot,
+  durationSec,
+  topRailOptions,
+  bottomRailId,
+  buildingWidth,
+  spawnOffset
+) {
   // Randomly select one of the top rails
   const randomIndex = Math.floor(Math.random() * topRailOptions.length);
   const chosenTopRailId = topRailOptions[randomIndex];
@@ -616,59 +618,61 @@ function spawnDynamicSkylineBuilding(svgRoot, durationSec, topRailOptions, botto
   
   // Create the SVG polygon for the building.
   const building = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-  building.setAttribute("fill", "#444");    // Building color (dark gray)
-  building.setAttribute("stroke", "#222");    // Border color
+  building.setAttribute("fill", "#444");  // Building color (dark gray)
+  building.setAttribute("stroke", "#222");  // Border color
   building.setAttribute("stroke-width", "2");
-  svgRoot.appendChild(building);
+  svgRoot.insertBefore(building, svgRoot.firstChild);
   skylineAssets.push(building);
 
-  // Define starting and ending x positions for the animation.
-  // Start completely off-screen (to the left) using spawnOffset.
+  // Define starting/ending X positions for the animation.
   const startX = -spawnOffset;
   const endX = window.innerWidth;
   
-  // Compute a base height from the rails at the starting position.
+  // Compute a "base height" from the rails at the starting position
   const baseTopY = getLineY(topRail, startX);
   const baseBottomY = getLineY(bottomRail, startX);
   const baseHeight = baseBottomY - baseTopY;
+  if (baseHeight <= 0) {
+    console.warn("Invalid baseHeight—check top vs bottom rails.");
+  }
 
-  // Animate the building’s left edge (represented by an object property "param")
+  // Animate the building’s left edge from startX to endX, linear, no overlap
   gsap.to({ param: startX }, {
     param: endX,
     duration: durationSec,
-    ease: "expo.in",
+    ease: "expo.in",  // No easing, uniform speed
     onUpdate: function() {
       const currentX = this.targets()[0].param;
       
-      // 1. Get the y-values along both rails at the current left edge.
+      // 1. Get the y-values along both rails at the current left edge
       const leftTopY = getLineY(topRail, currentX);
       const leftBottomY = getLineY(bottomRail, currentX);
-      
-      // 2. Compute a perspective scale factor (based on vertical gap).
+      if (leftBottomY <= leftTopY) return; // Safeguard
+
+      // 2. Compute a **clamped** scale factor based on height difference
       let scaleFactor = (leftBottomY - leftTopY) / baseHeight;
-      if (scaleFactor <= 0) scaleFactor = 0.01; // safeguard
-      
-      // 3. Determine progress (0 = left side, 1 = right side).
-      const progress = (currentX - startX) / (endX - startX);
-      
-      // 4. Define a velocity multiplier based on progress.
-      // Adjust the constant (here 1.5) as needed to reflect the expo.in effect.
-      const velocityMultiplier = 1 + 1.5 * progress;
-      
-      // 5. Calculate the dynamic building width.
-      const dynamicWidth = buildingWidth * scaleFactor * velocityMultiplier;
+      scaleFactor = Math.min(scaleFactor, 2);  // Cap the growth at 2x
+
+      // 3. Compute a **smooth** width growth factor
+      const progress = (currentX - startX) / (endX - startX);  // 0 (left) -> 1 (right)
+      const dynamicWidth = buildingWidth * (1 + scaleFactor * progress); // Gradual expansion
+
+      // 4. Compute right edge
       const rightX = currentX + dynamicWidth;
-      
-      // 6. Get the y-values along both rails at the building’s right edge.
+
+      // 5. Get the y-values along the rails at the building’s right edge
       const rightTopY = getLineY(topRail, rightX);
       const rightBottomY = getLineY(bottomRail, rightX);
-      
-      // 7. Update the polygon points.
-      const points = `${currentX},${leftTopY} ${rightX},${rightTopY} ${rightX},${rightBottomY} ${currentX},${leftBottomY}`;
-      building.setAttribute("points", points);
+
+      // 6. Update the polygon points
+      const points = `${currentX},${leftTopY} 
+                      ${rightX},${rightTopY} 
+                      ${rightX},${rightBottomY} 
+                      ${currentX},${leftBottomY}`;
+      building.setAttribute("points", points.trim());
     },
     onComplete: () => {
-      // Clean up the building after animation finishes.
+      // Remove the building from the DOM
       building.remove();
       const index = skylineAssets.indexOf(building);
       if (index > -1) skylineAssets.splice(index, 1);
@@ -677,16 +681,15 @@ function spawnDynamicSkylineBuilding(svgRoot, durationSec, topRailOptions, botto
 }
 
 // ========================================================
-// Initialization
+// Example Initialization
 // ========================================================
-
 function init() {
   resizeSVG();
   
   // Clear old elements (roads, curbs, sidewalks) before recalculating.
   clearTrack2Elements();
   
-  // Example initialization routines:
+  // Example lines animation
   const redLine1 = document.getElementById("redLine1");
   animateLineDrawing(redLine1, 2000);
   
@@ -696,69 +699,56 @@ function init() {
     createGuideLinesWithIds(intersection.x, intersection.y, 16, -25, 5, 3000, 2000);
   }
   
-  // Delay generation of sidewalk, curb, and road elements until the rails are ready.
+  // Delay generation of sidewalk, curb, and road elements until rails are ready
   setTimeout(generateSidewalkOnTrack2, 200);
   setTimeout(generateCurbOnTrack2, 200);
   setTimeout(generateRoadOnTrack2, 200);
   
-  // Initialize track-based asset spawning.
+  // Initialize track-based asset spawning
   initTracks();
   
-  // -----------------------------------------
-  // Skyline Spawning Setup
-  // -----------------------------------------
-  const spawnOffset = 150; // Pixels off-screen to start (adjust as needed)
-  const skylineConfigs = {
-    svgId: "track3Svg", // The SVG container for skyline elements
+function updateSkylineConfig() {
+  const spawnOffset = window.innerWidth * 0.2; // Offset is 20% of screen width
+  const buildingWidth = window.innerWidth * 0.1; // Width is 5% of screen width
+
+  return {
+    svgId: "track3Svg",
     topRailOptions: ["rail1", "rail2", "rail3", "rail4"],
     bottomRailId: "rail7",
-    buildingWidth: 25, // Base width used for calculating the travel distance
-    speed: 9,        // Duration (in seconds) for a building to traverse the screen
-    spawnRate: 700   // Milliseconds between spawns
+    buildingWidth,  // Dynamic width
+    speed: 10,  // Time for buildings to cross the screen
+    spawnRate: 300, // Adjust spawn rate as needed
+    spawnOffset // Dynamic spawn offset
   };
+}
 
-  function spawnBuildingForSkyline(config) {
-    const { svgId, topRailOptions, bottomRailId, buildingWidth, speed, spawnRate } = config;
-    const svgRoot = document.getElementById(svgId);
-    if (!svgRoot) {
-      console.warn(`SVG not found for skyline: ${svgId}`);
-      return;
-    }
-    
-    // Calculate the total travel distance for the building's left edge:
-    // It starts at -spawnOffset and ends at window.innerWidth.
-    const travelDistance = window.innerWidth + spawnOffset;
-    
-    // Compute the effective horizontal speed (pixels per second).
-    const effectiveSpeed = travelDistance / speed;
-    
-    // Convert spawnRate from milliseconds to seconds.
-    const spawnIntervalSeconds = spawnRate / 1000;
-    
-    // Calculate a dynamic width so the building covers the distance traveled during one spawn interval.
-    const dynamicWidth = effectiveSpeed * spawnIntervalSeconds;
-    
-    // Spawn the skyline building with the computed dynamic width and spawn offset.
-    spawnDynamicSkylineBuilding(svgRoot, speed, topRailOptions, bottomRailId, dynamicWidth, spawnOffset);
+// Initialize SkylineConfig on load
+let skylineConfigs = updateSkylineConfig();
+
+// Recalculate on resize
+window.addEventListener("resize", () => {
+  skylineConfigs = updateSkylineConfig();
+});
+
+// Spawn function now uses the dynamically updated skylineConfigs
+function spawnBuildingForSkyline(config) {
+  const { svgId, topRailOptions, bottomRailId, buildingWidth, speed, spawnOffset } = config;
+  const svgRoot = document.getElementById(svgId);
+  if (!svgRoot) {
+    console.warn(`SVG not found for skyline: ${svgId}`);
+    return;
   }
+  spawnDynamicSkylineBuilding(svgRoot, speed, topRailOptions, bottomRailId, buildingWidth, spawnOffset);
+}
+
   
-  // Start spawning skyline buildings if not already running.
+  // Start periodically spawning skyline buildings
   if (!window.skylineInterval) {
     window.skylineInterval = setInterval(() => {
       spawnBuildingForSkyline(skylineConfigs);
     }, skylineConfigs.spawnRate);
   }
-  
-  // (Optional) Immediately spawn an asset on track1 for demo purposes.
-  // const track1Svg = document.getElementById("track1Svg");
-  // if (track1Svg) {
-  //   spawnSmokeStack(track1Svg, 6, trackConfigs[0].assetTemplates[0]);
-  // }
 }
 
-// Initialize on page load and when resizing.
 window.addEventListener("load", init);
 window.addEventListener("resize", init);
-
-
-

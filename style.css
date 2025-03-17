@@ -56,3 +56,7 @@ body {
   z-index: -1;
   
 }
+
+#track3Svg {
+  z-index: -2;
+}

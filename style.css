@@ -51,3 +51,8 @@ body {
   border: dashed red;
 
 }
+
+#track2Svg {
+  z-index: -1;
+  
+}

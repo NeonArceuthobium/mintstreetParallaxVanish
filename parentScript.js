@@ -14,12 +14,22 @@ const trackConfigs = [
     id: "track1",
     svgId: "track1Svg",
     topRailId: "redLine1",
-    bottomRailId: "redLine2",
+    bottomRailId: "rail9",
     assetTemplates: ["shapeATrack1", "shapeBTrack1", "shapeCTrack1", "shapeDTrack1"],
     speed: 6,
     spawnRate: 1000,
     zIndex: 1
   },
+  {
+      id: "track2",
+    svgId: "track2Svg",
+    topRailId: "redLine2",
+    bottomRailId: "rail14",
+    assetTemplates: ["shapeATrack2"],
+    speed: 20,
+    spawnRate: 10000,
+    zIndex: 0
+  }
 
 ];
 
@@ -394,6 +404,11 @@ function spawnSmokeStack(svgRoot, durationSec, assetTemplateId, topRailId, botto
 }
 
 
+
+
+
+
+
 // ========================================================
 // Generic Function to Spawn an Asset for a Given Track
 // ========================================================
@@ -430,6 +445,126 @@ function initTracks() {
   });
 }
 
+
+
+
+
+
+function generateRoadOnTrack2() {
+  const svg = document.getElementById("track2Svg");
+  if (!svg) {
+    console.warn("SVG for track 2 not found.");
+    return;
+  }
+  
+  const topRail = document.getElementById("redLine2");
+  const bottomRail = document.getElementById("rail14");
+  if (!topRail || !bottomRail) {
+    console.warn("Required rails for road generation not found.");
+    return;
+  }
+  
+  // Use the full width of the screen as our x-range
+  const screenWidth = window.innerWidth;
+  const xLeft = 0;
+  const xRight = screenWidth;
+  
+  // Calculate y coordinates on each rail at the left and right edges.
+  const yTopLeft = getLineY(topRail, xLeft);
+  const yTopRight = getLineY(topRail, xRight);
+  const yBottomLeft = getLineY(bottomRail, xLeft);
+  const yBottomRight = getLineY(bottomRail, xRight);
+  
+  // Create a polygon that fills the area between the rails.
+  const road = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  road.setAttribute("id", "roadTrack2");
+  road.setAttribute(
+    "points",
+    `${xLeft},${yTopLeft} ${xRight},${yTopRight} ${xRight},${yBottomRight} ${xLeft},${yBottomLeft}`
+  );
+  road.setAttribute("fill", "#1a1a1a"); // set to a road-like color, adjust as needed
+  road.setAttribute("stroke", "none");
+  
+  // Optionally, insert the road as the bottom layer in the SVG.
+  svg.insertBefore(road, svg.firstChild);
+}
+function generateCurbOnTrack2() {
+  const svg = document.getElementById("track2Svg");
+  if (!svg) {
+    console.warn("SVG for track 2 not found.");
+    return;
+  }
+  
+  const topRail = document.getElementById("redLine2");
+  const bottomRail = document.getElementById("rail9");
+  if (!topRail || !bottomRail) {
+    console.warn("Required rails for curb generation not found.");
+    return;
+  }
+  
+  // Use the full width of the screen as our x-range
+  const screenWidth = window.innerWidth;
+  const xLeft = 0;
+  const xRight = screenWidth;
+  
+  // Calculate y coordinates on each rail at the left and right edges.
+  const yTopLeft = getLineY(topRail, xLeft);
+  const yTopRight = getLineY(topRail, xRight);
+  const yBottomLeft = getLineY(bottomRail, xLeft);
+  const yBottomRight = getLineY(bottomRail, xRight);
+  
+  // Create a polygon that fills the area between the rails with a lighter color for the curb.
+  const curb = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  curb.setAttribute("id", "curbTrack2");
+  curb.setAttribute(
+    "points",
+    `${xLeft},${yTopLeft} ${xRight},${yTopRight} ${xRight},${yBottomRight} ${xLeft},${yBottomLeft}`
+  );
+  curb.setAttribute("fill", "#2a2a2a"); // lighter curb color
+  curb.setAttribute("stroke", "none");
+  
+  // Insert the curb as the bottom layer in the SVG.
+  svg.insertBefore(curb, svg.firstChild);
+}
+function generateSidewalkOnTrack2() {
+  const svg = document.getElementById("track2Svg");
+  if (!svg) {
+    console.warn("SVG for track 2 not found.");
+    return;
+  }
+  
+  const topRail = document.getElementById("rail9");
+  const bottomRail = document.getElementById("rail7");
+  if (!topRail || !bottomRail) {
+    console.warn("Required rails for curb generation not found.");
+    return;
+  }
+  
+  // Use the full width of the screen as our x-range
+  const screenWidth = window.innerWidth;
+  const xLeft = 0;
+  const xRight = screenWidth;
+  
+  // Calculate y coordinates on each rail at the left and right edges.
+  const yTopLeft = getLineY(topRail, xLeft);
+  const yTopRight = getLineY(topRail, xRight);
+  const yBottomLeft = getLineY(bottomRail, xLeft);
+  const yBottomRight = getLineY(bottomRail, xRight);
+  
+  // Create a polygon that fills the area between the rails with a lighter color for the curb.
+  const curb = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  curb.setAttribute("id", "curbTrack2");
+  curb.setAttribute(
+    "points",
+    `${xLeft},${yTopLeft} ${xRight},${yTopRight} ${xRight},${yBottomRight} ${xLeft},${yBottomLeft}`
+  );
+  curb.setAttribute("fill", "#3a3a3a"); // lighter curb color
+  curb.setAttribute("stroke", "none");
+  
+  // Insert the curb as the bottom layer in the SVG.
+  svg.insertBefore(curb, svg.firstChild);
+}
+
 // ========================================================
 // Initialization
 // ========================================================
@@ -445,9 +580,13 @@ function init() {
   const redLine2 = document.getElementById("redLine2");
   const intersection = intersectLines(redLine1, redLine2);
   if (intersection && intersection.x !== null && intersection.y !== null) {
-    createGuideLinesWithIds(intersection.x, intersection.y, 14, -30, 5, 3000, 2000);
+    createGuideLinesWithIds(intersection.x, intersection.y, 16, -25, 5, 3000, 2000);
   }
   
+  // Call generateRoadOnTrack2 after rails are drawn
+  setTimeout(generateRoadOnTrack2, 200);
+  setTimeout(generateCurbOnTrack2, 200);
+  setTimeout(generateSidewalkOnTrack2, 200);
   // Initialize track-based asset spawning
   initTracks();
   
@@ -460,3 +599,5 @@ function init() {
 
 window.addEventListener("load", init);
 window.addEventListener("resize", init);
+
+

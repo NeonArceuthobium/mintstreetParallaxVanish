@@ -142,10 +142,18 @@ body {
 
 .overlay-container {
   position: absolute;
-  top: -130px;
-  left: -370px;
-  width: 100%;
+  top: -30%;
+  left: -45%;
+  rotate: -15deg;
+  width: 100%;  /* container spans full viewport width */
   height: 100%;
-  z-index: 5; /* in front of .rain */
-  rotate: -21deg;
+  z-index: 4;   /* or whatever ensures it's on top */
+  pointer-events: none; /* so it doesn't block clicks if you want that behavior */
+}
+
+/* Make the SVG fill its container proportionally */
+.overlay-svg {
+  display: block;   /* remove default inline spacing */
+  width: 200%;      /* fill container's width */
+  height: auto;     /* automatically adjusts the height to preserve aspect ratio */
 }

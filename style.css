@@ -142,8 +142,8 @@ body {
 
 .overlay-container {
   position: absolute;
-  top: -30%;
-  left: -45%;
+  top: -40%;
+  left: -30%;
   rotate: -15deg;
   width: 100%;  /* container spans full viewport width */
   height: 100%;
@@ -154,6 +154,6 @@ body {
 /* Make the SVG fill its container proportionally */
 .overlay-svg {
   display: block;   /* remove default inline spacing */
-  width: 200%;      /* fill container's width */
+  width: 175%;      /* fill container's width */
   height: auto;     /* automatically adjusts the height to preserve aspect ratio */
 }

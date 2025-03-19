@@ -854,9 +854,9 @@ document.querySelector('.sound-toggle-btn').addEventListener('click', function()
   
   if (audio.paused) {
     audio.play();
-    this.textContent = 'BGM: On';
+    this.textContent = 'Sound: ON';
   } else {
     audio.pause();
-    this.textContent = 'BGM: Off';
+    this.textContent = 'Sound: OFF';
   }
 });

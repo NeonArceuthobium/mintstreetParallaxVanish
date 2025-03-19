@@ -819,11 +819,24 @@ function generateRain() {
   }
 }
 
+// Create a new audio object pointing to your MP3
+const audio = new Audio("thunder.mp3");
+function playSoundEffect() {
+  audio.currentTime = 0;
+
+  
+  // Play it (returns a Promise in modern browsers)
+  audio.play().catch(error => {
+    console.error("Audio play failed:", error);
+  });
+}
+
 function triggerLightning() {
   if (!isRaining) return;
   let delay = Math.random() * 10000 + 5000;
   setTimeout(() => {
     lightningFlash.style.opacity = "1";
+    playSoundEffect();
     setTimeout(() => {
       lightningFlash.style.opacity = "0";
       triggerLightning();
@@ -836,3 +849,14 @@ function triggerLightning() {
 // Start rain initially
 toggleRain();
 
+document.querySelector('.sound-toggle-btn').addEventListener('click', function() {
+  const audio = document.getElementById('bgAudio');
+  
+  if (audio.paused) {
+    audio.play();
+    this.textContent = 'BGM: On';
+  } else {
+    audio.pause();
+    this.textContent = 'BGM: Off';
+  }
+});

@@ -20,13 +20,33 @@ const trackConfigs = [
     spawnRate: 1000,
     zIndex: 1
   },
+    {
+    id: "track4",
+    svgId: "track4Svg",
+    topRailId: "rail5",
+    bottomRailId: "rail8",
+    assetTemplates: ["shapeATrack4", "shapeBTrack4", "shapeCTrack4", "shapeDTrack4", "shapeETrack4"],
+    speed: 8,
+    spawnRate: 6000,
+    zIndex: 1
+  },
+  // {
+  //     id: "track6",
+  //   svgId: "track6Svg",
+  //   topRailId: "rail4",
+  //   bottomRailId: "rail8",
+  //   assetTemplates: ["shapeATrack6"],
+  //   speed: 12,
+  //   spawnRate: 6000,
+  //   zIndex: 1
+  // },
   {
       id: "track2",
     svgId: "track2Svg",
     topRailId: "redLine2",
     bottomRailId: "rail14",
     assetTemplates: ["shapeATrack2"],
-    speed: 20,
+    durationSec: 20,
     spawnRate: 10000,
     zIndex: 0
   }
@@ -238,20 +258,21 @@ function createGuideLinesWithIds(
 
   // Define an array of colors in a consistent order
   const guideLineColors = [
-    "orange",
-    "yellow",
-    "red",
-    "blue",
-    "green",
-    "purple",
-    "cyan",
-    "magenta",
-    "lime",
-    "pink",
-    "teal",
-    "lavender",
-    "brown",
-    "black"
+    "none"
+    // "orange",
+    // "yellow",
+    // "red",
+    // "blue",
+    // "green",
+    // "purple",
+    // "cyan",
+    // "magenta",
+    // "lime",
+    // "pink",
+    // "teal",
+    // "lavender",
+    // "brown",
+    // "black"
   ];
 
   // Create the guide (rail) lines with IDs "rail1", "rail2", etc.
@@ -294,7 +315,7 @@ function animateLineDrawing(lineElem, duration) {
       "line"
     );
     dynamicLine.setAttribute("id", "dynamicLine");
-    dynamicLine.setAttribute("stroke", "#FF00FF");
+    dynamicLine.setAttribute("stroke", "none");
     dynamicLine.setAttribute(
       "stroke-width",
       lineElem.getAttribute("stroke-width") || 2
@@ -335,7 +356,7 @@ function animateLineDrawing(lineElem, duration) {
 // Updated Smoke Stack Function to Accept Template ID
 // ========================================================
 
-function spawnSmokeStack(svgRoot, durationSec, assetTemplateId, topRailId, bottomRailId) {
+function spawnSmokeStack(svgRoot, speed, assetTemplateId, topRailId, bottomRailId) {
   const trackId = svgRoot.getAttribute("id");
 
   // Find the template element based on assetTemplateId
@@ -358,14 +379,17 @@ function spawnSmokeStack(svgRoot, durationSec, assetTemplateId, topRailId, botto
 
   const debugCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   debugCircle.setAttribute("r", "10");
-  debugCircle.setAttribute("fill", "red");
-  debugCircle.setAttribute("stroke", "black");
+  debugCircle.setAttribute("fill", "none");
+  debugCircle.setAttribute("stroke", "none");
   debugCircle.setAttribute("stroke-width", "2");
   svgRoot.appendChild(debugCircle);
-
-  gsap.to({ param: -300 }, {
+  
+  
+console.log(`Spawning for track ${trackId} with duration:`, speed);
+  gsap.to({ param: -300 }, { 
+    
     param: 2500,
-    duration: durationSec,
+    duration: speed,
     ease: "expo.in",
     onUpdate: function() {
       const currentX = this.targets()[0].param;
@@ -425,7 +449,7 @@ function spawnAssetForTrack(trackConfig) {
   const selectedTemplateId = assetTemplates[randomIndex];
   
   // Now pass the rail IDs to spawnSmokeStack
-  spawnSmokeStack(svgRoot, 6, selectedTemplateId, topRailId, bottomRailId);
+  spawnSmokeStack(svgRoot, speed, selectedTemplateId, topRailId, bottomRailId);
 }
 
 
@@ -618,7 +642,7 @@ function spawnDynamicSkylineBuilding(
   
   // Create the SVG polygon for the building.
   const building = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-  building.setAttribute("fill", "#444");  // Building color (dark gray)
+  building.setAttribute("fill", "#70007b");  // Building color (dark gray)
   building.setAttribute("stroke", "#222");  // Border color
   building.setAttribute("stroke-width", "2");
   svgRoot.insertBefore(building, svgRoot.firstChild);
@@ -752,3 +776,63 @@ function spawnBuildingForSkyline(config) {
 
 window.addEventListener("load", init);
 window.addEventListener("resize", init);
+
+
+
+//************************************************************
+// Rain + Lightning (unchanged from your code)
+//************************************************************
+const rainOverlay = document.querySelector('.rain-overlay');
+const rainSVG = document.querySelector('.rain');
+const lightningFlash = document.querySelector('.lightning-flash');
+
+let isRaining = false;
+
+function toggleRain() {
+  isRaining = !isRaining;
+  rainOverlay.style.opacity = isRaining ? "1" : "0";
+  rainSVG.style.opacity = isRaining ? "1" : "0";
+
+
+  if (isRaining) {
+    generateRain();
+    triggerLightning();
+  } else {
+    rainSVG.innerHTML = "";
+  }
+}
+
+function generateRain() {
+  rainSVG.innerHTML = "";
+  for (let i = 0; i < 50; i++) {
+    let x = Math.random() * 120;
+    let y = Math.random() * 120;
+    let drop = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    drop.setAttribute("x1", x);
+    drop.setAttribute("y1", y);
+    drop.setAttribute("x2", x + 2); // offset x by a couple of pixels
+    drop.setAttribute("y2", y + 5); // so it appears slanted
+
+    drop.classList.add("raindrop");
+    drop.style.animationDuration = (Math.random() * 0.5 + 0.3) + "s";
+    rainSVG.appendChild(drop);
+  }
+}
+
+function triggerLightning() {
+  if (!isRaining) return;
+  let delay = Math.random() * 10000 + 5000;
+  setTimeout(() => {
+    lightningFlash.style.opacity = "1";
+    setTimeout(() => {
+      lightningFlash.style.opacity = "0";
+      triggerLightning();
+    }, 200);
+  }, delay);
+}
+
+// Rain cycle every 3 minutes (1.5 min rain, 1.5 min clear)
+
+// Start rain initially
+toggleRain();
+

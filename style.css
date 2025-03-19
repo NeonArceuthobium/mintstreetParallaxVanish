@@ -60,3 +60,92 @@ body {
 #track3Svg {
   z-index: -2;
 }
+
+.overlay-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Ensures it doesn’t interfere with interactions */
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+
+#track5Svg {
+  z-index: 0;
+  
+}
+
+#track4Svg {
+  
+  z-index: 1;
+}
+
+#track1Svg {
+  
+  z-index: 2;
+}
+
+ /* Rain Overlay (Darkening Effect) */
+        .rain-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+          z-index: 4;
+        }
+
+        /* Lightning Effect */
+        .lightning-flash {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        /* SVG Rain */
+        .rain {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+          z-index: 4;
+        }
+
+        .raindrop {
+            stroke: rgba(255, 255, 255, 0.5);
+            stroke-width: .5;
+            stroke-linecap: round;
+            animation: rain-fall 0.6s linear infinite;
+          z-index: 4;
+        }
+
+ @keyframes rain-fall {
+  from {
+    /* Start off-screen top-left: */
+    transform: translate(-10%, -10%);
+    opacity: 1;
+  }
+  to {
+    /* End off-screen bottom-right: */
+    transform: translate(110%, 200%);
+    opacity: 0;
+  }
+}
+
+
+.overlay-container {
+  position: absolute;
+  top: -130px;
+  left: -370px;
+  width: 100%;
+  height: 100%;
+  z-index: 5; /* in front of .rain */
+  rotate: -21deg;
+}

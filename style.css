@@ -157,3 +157,23 @@ body {
   width: 175%;      /* fill container's width */
   height: auto;     /* automatically adjusts the height to preserve aspect ratio */
 }
+
+#sound-toggle-btn {
+  position: fixed;       /* Stays at the same place even if the page scrolls */
+  bottom: 20px;          /* 20px from the bottom edge of the browser window */
+  left: 20px;            /* 20px from the left edge of the browser window */
+  z-index: 7;         /* Ensure it’s on top of most other elements */
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  /* Optional styling: */
+  border: none;
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  opacity: 0.85;
+}
+
+#sound-toggle-btn:hover {
+  opacity: 1;
+}

@@ -836,14 +836,18 @@ function triggerLightning() {
   let delay = Math.random() * 10000 + 5000;
   setTimeout(() => {
     lightningFlash.style.opacity = "1";
-    playSoundEffect();
+
+    const bgAudio = document.getElementById('bgAudio');
+    if (bgAudio && !bgAudio.paused) {
+      playSoundEffect();
+    }
+
     setTimeout(() => {
       lightningFlash.style.opacity = "0";
       triggerLightning();
     }, 200);
   }, delay);
 }
-
 // Rain cycle every 3 minutes (1.5 min rain, 1.5 min clear)
 
 // Start rain initially
